@@ -1,0 +1,21 @@
+# Java build artifacts
+**/target/
+**/*.class
+
+# IDE files
+**/.classpath
+**/.project
+**/.settings/
+**/.idea/
+**/*.iml
+
+# SQLite databases
+**/*.db
+
+# Node.js
+**/node_modules/
+**/dist/
+
+# OS files
+.DS_Store
+Thumbs.db
