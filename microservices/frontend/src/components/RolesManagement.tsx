@@ -35,16 +35,21 @@ const RolesManagement: React.FC = () => {
 
   const openEdit = (r: Role) => {
     setEditing(r);
-    setForm({ name: r.name, description: r.description || '', permissions: r.permissions?.map(p => p.value) || [] });
+    setForm({ name: r.name, description: r.description || '', permissions: r.permissions?.map(p => typeof p === 'string' ? p : p.value) || [] });
     setShowModal(true);
   };
 
   const handleSave = async () => {
     try {
+      const payload = {
+        name: form.name,
+        description: form.description,
+        permissions: permissions.filter(p => form.permissions.includes(p.value)),
+      };
       if (editing) {
-        await roleService.update(editing.id, form);
+        await roleService.update(editing.id, payload);
       } else {
-        await roleService.create(form);
+        await roleService.create(payload);
       }
       setShowModal(false);
       loadData();
@@ -87,7 +92,7 @@ const RolesManagement: React.FC = () => {
           {roles.map(r => (
             <tr key={r.id}>
               <td>{r.name}</td><td>{r.description}</td><td>{r.usersCount}</td>
-              <td>{r.permissions?.map(p => p.value).join(', ')}</td>
+              <td>{r.permissions?.map(p => typeof p === 'string' ? p : p.value).join(', ')}</td>
               <td>
                 <Button variant="outline-primary" size="sm" className="me-1" onClick={() => openEdit(r)}>Edit</Button>
                 <Button variant="outline-danger" size="sm" onClick={() => handleDelete(r.id)}>Delete</Button>

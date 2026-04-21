@@ -1,5 +1,6 @@
 package com.quickapp.order.service;
 
+import com.quickapp.order.client.AuthClient;
 import com.quickapp.order.client.CustomerClient;
 import com.quickapp.order.client.ProductClient;
 import com.quickapp.order.dto.OrderDTO;
@@ -18,11 +19,14 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final AuthClient authClient;
     private final CustomerClient customerClient;
     private final ProductClient productClient;
 
-    public OrderService(OrderRepository orderRepository, CustomerClient customerClient, ProductClient productClient) {
+    public OrderService(OrderRepository orderRepository, AuthClient authClient,
+                        CustomerClient customerClient, ProductClient productClient) {
         this.orderRepository = orderRepository;
+        this.authClient = authClient;
         this.customerClient = customerClient;
         this.productClient = productClient;
     }
@@ -94,6 +98,9 @@ public class OrderService {
 
         if (token != null) {
             dto.setCustomerName(customerClient.getCustomerName(order.getCustomerId(), token));
+            if (order.getCashierId() != null) {
+                dto.setCashierName(authClient.getUserFullName(order.getCashierId(), token));
+            }
         }
 
         if (order.getOrderDetails() != null) {

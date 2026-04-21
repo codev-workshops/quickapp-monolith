@@ -4,12 +4,12 @@ import type { LoginResponse, User } from '../models';
 export const authService = {
   async login(username: string, password: string): Promise<LoginResponse> {
     const response = await api.post<LoginResponse>('/auth/token', {
-      username,
+      userName: username,
       password,
     });
     const data = response.data;
-    localStorage.setItem('access_token', data.access_token);
-    localStorage.setItem('refresh_token', data.refresh_token);
+    localStorage.setItem('access_token', data.accessToken);
+    localStorage.setItem('refresh_token', data.refreshToken);
     return data;
   },
 
