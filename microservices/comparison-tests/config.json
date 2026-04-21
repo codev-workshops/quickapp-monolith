@@ -1,0 +1,24 @@
+{
+  "monolith": {
+    "baseUrl": "https://localhost:7085",
+    "loginEndpoint": "/connect/token",
+    "usersEndpoint": "/api/account/users",
+    "rolesEndpoint": "/api/account/roles",
+    "customersEndpoint": "/api/customer",
+    "productsEndpoint": "/api/products",
+    "ordersEndpoint": "/api/orders"
+  },
+  "microservices": {
+    "baseUrl": "http://localhost:8080",
+    "loginEndpoint": "/api/auth/token",
+    "usersEndpoint": "/api/auth/users",
+    "rolesEndpoint": "/api/auth/roles",
+    "customersEndpoint": "/api/customers",
+    "productsEndpoint": "/api/products",
+    "ordersEndpoint": "/api/orders"
+  },
+  "credentials": {
+    "username": "admin",
+    "password": "tempP@ss123"
+  }
+}

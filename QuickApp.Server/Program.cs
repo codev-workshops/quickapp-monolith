@@ -36,7 +36,7 @@ var migrationsAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(connectionString, b => b.MigrationsAssembly(migrationsAssembly));
+    options.UseSqlite(connectionString, b => b.MigrationsAssembly(migrationsAssembly));
     options.UseOpenIddict();
 });
 

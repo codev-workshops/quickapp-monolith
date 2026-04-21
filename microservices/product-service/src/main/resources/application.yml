@@ -1,0 +1,18 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: product-service
+  datasource:
+    url: jdbc:sqlite:./data/product.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+app:
+  jwt:
+    secret: QuickAppMicroservicesJwtSecretKey2024VeryLongAndSecureKeyForHS512Algorithm!!

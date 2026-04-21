@@ -336,6 +336,31 @@ QuickApp is actively maintained on [GitHub](https://github.com/emonney/QuickApp)
 
 ---
 
+## Microservices Architecture
+
+This repository also contains a microservices decomposition of the monolith in the `microservices/` directory. The microservices version uses:
+
+- **Spring Boot 3.4.4** (Java 17) for backend services
+- **React 18** + Vite + TypeScript for the frontend
+- **SQLite** for per-service database isolation
+- **JWT (HS512)** for authentication across services
+- **Spring Cloud Gateway** as the API gateway
+
+### Services
+
+| Service | Port | Description |
+|---------|------|-------------|
+| API Gateway | 8080 | Routes requests to downstream services |
+| Auth Service | 8081 | JWT auth, user/role management |
+| Customer Service | 8082 | Customer CRUD |
+| Product Service | 8083 | Product & category management |
+| Order Service | 8084 | Order management with cross-service enrichment |
+| Frontend | 3000 | React SPA |
+
+See [`microservices/README.md`](microservices/README.md) for full setup instructions.
+
+---
+
 ## License
 
 Released under the [MIT License](https://github.com/emonney/QuickApp/blob/master/LICENSE).

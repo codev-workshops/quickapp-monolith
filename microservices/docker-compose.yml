@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+      - customer-service
+      - product-service
+      - order-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "8081:8081"
+    volumes:
+      - auth-data:/app/data
+
+  customer-service:
+    build: ./customer-service
+    ports:
+      - "8082:8082"
+    volumes:
+      - customer-data:/app/data
+
+  product-service:
+    build: ./product-service
+    ports:
+      - "8083:8083"
+    volumes:
+      - product-data:/app/data
+
+  order-service:
+    build: ./order-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - customer-service
+      - product-service
+    volumes:
+      - order-data:/app/data
+    environment:
+      - APP_SERVICES_CUSTOMER_URL=http://customer-service:8082
+      - APP_SERVICES_PRODUCT_URL=http://product-service:8083
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+
+volumes:
+  auth-data:
+  customer-data:
+  product-data:
+  order-data:

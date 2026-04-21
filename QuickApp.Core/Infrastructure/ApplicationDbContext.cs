@@ -29,7 +29,6 @@ namespace QuickApp.Core.Infrastructure
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            const string priceDecimalType = "decimal(18,2)";
             const string tablePrefix = "App";
 
             builder.Entity<ApplicationUser>()
@@ -74,16 +73,11 @@ namespace QuickApp.Core.Infrastructure
             builder.Entity<Product>().Property(p => p.Description).HasMaxLength(500);
             builder.Entity<Product>().Property(p => p.Icon).IsUnicode(false).HasMaxLength(256);
             builder.Entity<Product>().HasOne(p => p.Parent).WithMany(p => p.Children).OnDelete(DeleteBehavior.Restrict);
-            builder.Entity<Product>().Property(p => p.BuyingPrice).HasColumnType(priceDecimalType);
-            builder.Entity<Product>().Property(p => p.SellingPrice).HasColumnType(priceDecimalType);
             builder.Entity<Product>().ToTable($"{tablePrefix}{nameof(Products)}");
 
             builder.Entity<Order>().Property(o => o.Comments).HasMaxLength(500);
-            builder.Entity<Order>().Property(p => p.Discount).HasColumnType(priceDecimalType);
             builder.Entity<Order>().ToTable($"{tablePrefix}{nameof(Orders)}");
 
-            builder.Entity<OrderDetail>().Property(p => p.UnitPrice).HasColumnType(priceDecimalType);
-            builder.Entity<OrderDetail>().Property(p => p.Discount).HasColumnType(priceDecimalType);
             builder.Entity<OrderDetail>().ToTable($"{tablePrefix}{nameof(OrderDetails)}");
         }
 

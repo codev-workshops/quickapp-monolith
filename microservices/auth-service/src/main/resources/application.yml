@@ -1,0 +1,23 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:sqlite:./data/auth.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  jwt:
+    secret: QuickAppMicroservicesJwtSecretKey2024VeryLongAndSecureKeyForHS512Algorithm!!
+    expiration-ms: 3600000
+    refresh-expiration-ms: 86400000
