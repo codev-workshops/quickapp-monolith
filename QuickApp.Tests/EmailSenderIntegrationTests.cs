@@ -14,10 +14,22 @@ public class EmailSenderIntegrationTests : IAsyncLifetime
         BaseAddress = new Uri("http://localhost:3000")
     };
 
+    private JsonElement GetMessageArray(JsonElement root)
+    {
+        if (root.ValueKind == JsonValueKind.Array)
+            return root;
+
+        if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("results", out var results))
+            return results;
+
+        return root;
+    }
+
     public async Task InitializeAsync()
     {
         // Clear all messages in smtp4dev before each test run
-        var messages = await _smtp4devClient.GetFromJsonAsync<JsonElement>("/api/Messages");
+        var response = await _smtp4devClient.GetFromJsonAsync<JsonElement>("/api/Messages");
+        var messages = GetMessageArray(response);
         if (messages.ValueKind == JsonValueKind.Array)
         {
             foreach (var msg in messages.EnumerateArray())
@@ -73,7 +85,8 @@ public class EmailSenderIntegrationTests : IAsyncLifetime
 
         // Assert - verify smtp4dev captured the email
         await Task.Delay(1000); // Give smtp4dev a moment to process
-        var messages = await _smtp4devClient.GetFromJsonAsync<JsonElement>("/api/Messages");
+        var response = await _smtp4devClient.GetFromJsonAsync<JsonElement>("/api/Messages");
+        var messages = GetMessageArray(response);
         Assert.True(messages.ValueKind == JsonValueKind.Array, "Expected an array of messages from smtp4dev");
 
         var messageArray = messages.EnumerateArray().ToList();
@@ -81,7 +94,7 @@ public class EmailSenderIntegrationTests : IAsyncLifetime
 
         var message = messageArray[0];
         Assert.Equal(subject, message.GetProperty("subject").GetString());
-        Assert.Contains(recipientEmail, message.GetProperty("to").GetString());
+        Assert.Contains(recipientEmail, message.GetProperty("to").EnumerateArray().Select(e => e.GetString()).ToList());
     }
 
     [Fact]
@@ -105,14 +118,15 @@ public class EmailSenderIntegrationTests : IAsyncLifetime
         Assert.Null(errorMsg);
 
         await Task.Delay(1000);
-        var messages = await _smtp4devClient.GetFromJsonAsync<JsonElement>("/api/Messages");
+        var response = await _smtp4devClient.GetFromJsonAsync<JsonElement>("/api/Messages");
+        var messages = GetMessageArray(response);
         var messageArray = messages.EnumerateArray().ToList();
         Assert.Single(messageArray);
 
         var message = messageArray[0];
         Assert.Equal(subject, message.GetProperty("subject").GetString());
-        Assert.Contains(recipientEmail, message.GetProperty("to").GetString());
-        Assert.Contains(senderEmail, message.GetProperty("from").GetString());
+        Assert.Contains(recipientEmail, message.GetProperty("to").EnumerateArray().Select(e => e.GetString()).ToList());
+        Assert.Contains(senderEmail, message.GetProperty("from").GetString()!);
     }
 
     [Fact]
@@ -165,7 +179,8 @@ public class EmailSenderIntegrationTests : IAsyncLifetime
 
         // Verify via smtp4dev API that the message was received
         await Task.Delay(1000);
-        var messages = await _smtp4devClient.GetFromJsonAsync<JsonElement>("/api/Messages");
+        var response = await _smtp4devClient.GetFromJsonAsync<JsonElement>("/api/Messages");
+        var messages = GetMessageArray(response);
         var messageArray = messages.EnumerateArray().ToList();
         Assert.Single(messageArray);
 
