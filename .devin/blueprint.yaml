@@ -1,0 +1,38 @@
+# https://docs.devin.ai/onboard-devin/environment-yaml
+# Commands run from the repo root.
+# One-time setup (e.g., install system tools, global CLIs).
+initialize: |
+  # .NET 10 SDK (solution targets net10.0)
+  curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 10.0 --install-dir "$HOME/.dotnet"
+  echo "DOTNET_ROOT=$HOME/.dotnet" >> $ENVRC
+  echo "PATH=$HOME/.dotnet:$PATH" >> $ENVRC
+  # Node 22 for the Angular 21 client
+  nvm install 22 && nvm alias default 22
+  # Headless Chrome under Karma needs --no-sandbox; wrap the system Chrome
+  echo '#!/usr/bin/env bash' > "$HOME/chrome-nosandbox.sh"
+  echo 'exec /usr/bin/google-chrome --no-sandbox --headless=new --disable-gpu --disable-dev-shm-usage "$@"' >> "$HOME/chrome-nosandbox.sh"
+  chmod +x "$HOME/chrome-nosandbox.sh"
+  echo "CHROME_BIN=$HOME/chrome-nosandbox.sh" >> $ENVRC
+# Install project dependencies (runs during builds, surfaced to agent at session start).
+maintenance: |
+  dotnet restore QuickApp.sln
+  (cd quickapp.client && npm install)
+knowledge:
+  - name: build
+    contents: |
+      dotnet build QuickApp.sln -c Release
+      (cd quickapp.client && npm run build)
+  - name: test
+    contents: |
+      # Frontend unit tests (headless Chrome; CHROME_BIN exported in initialize). No backend test project exists.
+      (cd quickapp.client && npx ng test --watch=false --browsers=ChromeHeadless)
+  - name: lint
+    contents: |
+      (cd quickapp.client && npm run lint)
+  - name: startup
+    contents: |
+      # Backend needs SQL Server (default conn string is Windows-auth and won't work on Linux).
+      docker run -d --name quickapp-mssql -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD=QuickApp@Pass123 -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+      export ConnectionStrings__DefaultConnection="Server=localhost,1433;Database=QuickApp;User Id=sa;Password=QuickApp@Pass123;TrustServerCertificate=true;MultipleActiveResultSets=true"
+      (cd QuickApp.Server && dotnet run)   # API on http://localhost:5225 (swagger at /swagger)
+      (cd quickapp.client && npm start)    # Angular dev server on https://localhost:4200
